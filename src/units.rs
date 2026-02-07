@@ -39,14 +39,14 @@ macro_rules! define {
             impl $type for $quantity {}
         )*
 
-        pub trait $trait {
+        pub const trait $trait {
             $(
                 #[allow(non_snake_case)]
                 fn $unit(self) -> $quantity;
             )*
         }
 
-        impl $trait for $primitive {
+        impl const $trait for $primitive {
             $(
                 fn $unit(self) -> $quantity {
                     $quantity(self)
@@ -55,13 +55,13 @@ macro_rules! define {
         }
 
         $(
-            impl From<$quantity> for $primitive {
+            impl const From<$quantity> for $primitive {
                 fn from(x: $quantity) -> Self {
                     x.0
                 }
             }
 
-            impl From<$primitive> for $quantity {
+            impl const From<$primitive> for $quantity {
                 fn from(x: $primitive) -> $quantity {
                     $quantity(x)
                 }
@@ -79,42 +79,42 @@ macro_rules! define {
                 }
             }
 
-            impl core::ops::Div<$primitive> for $quantity {
+            impl const core::ops::Div<$primitive> for $quantity {
                 type Output = Self;
                 fn div(self, rhs: $primitive) -> Self::Output {
                     $quantity(self.0/rhs)
                 }
             }
 
-            impl core::ops::Mul<$primitive> for $quantity {
+            impl const core::ops::Mul<$primitive> for $quantity {
                 type Output = Self;
                 fn mul(self, rhs: $primitive) -> Self::Output {
                     $quantity(self.0*rhs)
                 }
             }
 
-            impl core::ops::Mul<$quantity> for $primitive {
+            impl const core::ops::Mul<$quantity> for $primitive {
                 type Output = $quantity;
                 fn mul(self, rhs: $quantity) -> Self::Output {
                     $quantity(self*rhs.0)
                 }
             }
 
-            impl core::ops::Div<$quantity> for $quantity {
+            impl const core::ops::Div<$quantity> for $quantity {
                 type Output = $primitive;
                 fn div(self, rhs: Self) -> Self::Output {
                     self.0/rhs.0
                 }
             }
 
-            impl core::ops::Add<$quantity> for $quantity {
+            impl const core::ops::Add<$quantity> for $quantity {
                 type Output = Self;
                 fn add(self, rhs: Self) -> Self::Output {
                     Self(self.0+rhs.0)
                 }
             }
 
-            impl core::ops::Sub<$quantity> for $quantity {
+            impl const core::ops::Sub<$quantity> for $quantity {
                 type Output = Self;
                 fn sub(self, rhs: Self) -> Self::Output {
                     Self(self.0-rhs.0)
@@ -142,7 +142,7 @@ macro_rules! define_large {
         );
 
         $(
-        impl From<$quantity> for $quantity_large {
+        impl const From<$quantity> for $quantity_large {
             fn from(x: $quantity) -> Self {
                 Self(LargeValueType::from(x.0))
             }
@@ -162,17 +162,17 @@ macro_rules! define_large {
 macro_rules! convert {
     ($( ($from: ty, $from_large: ty, $into: ty, $into_large: ty, $factor: expr) ),+) => {
         $(
-        impl From<$from> for $into {
+        impl const From<$from> for $into {
             fn from(x: $from) -> Self {
                 Self(x.0 * $factor)
             }
         }
-        impl From<$from> for $into_large {
+        impl const From<$from> for $into_large {
             fn from(x: $from) -> Self {
                 Self(LargeValueType::from(x.0) * $factor)
             }
         }
-        impl From<$from_large> for $into_large {
+        impl const From<$from_large> for $into_large {
             fn from(x: $from_large) -> Self {
                 Self(x.0 * $factor)
             }
@@ -202,42 +202,42 @@ macro_rules! multiply {
             }
         }
 
-        impl core::ops::Mul<$freq_large> for $time_large {
+        impl const core::ops::Mul<$freq_large> for $time_large {
             type Output = TicksU64;
             fn mul(self, rhs: $freq_large) -> Self::Output {
                 (self.0 * rhs.0 * $factor / $divider).into()
             }
         }
 
-        impl core::ops::Mul<$time_large> for $freq_large {
+        impl const core::ops::Mul<$time_large> for $freq_large {
             type Output = TicksU64;
             fn mul(self, rhs: $time_large) -> Self::Output {
                 (self.0 * rhs.0 * $factor / $divider).into()
             }
         }
 
-        impl core::ops::Mul<$freq> for $time_large {
+        impl const core::ops::Mul<$freq> for $time_large {
             type Output = TicksU64;
             fn mul(self, rhs: $freq) -> Self::Output {
                 (self.0 * LargeValueType::from(rhs.0) * $factor / $divider).into()
             }
         }
 
-        impl core::ops::Mul<$time> for $freq_large {
+        impl const core::ops::Mul<$time> for $freq_large {
             type Output = TicksU64;
             fn mul(self, rhs: $time) -> Self::Output {
                 (self.0 * LargeValueType::from(rhs.0) * $factor / $divider).into()
             }
         }
 
-        impl core::ops::Mul<$freq_large> for $time {
+        impl const core::ops::Mul<$freq_large> for $time {
             type Output = TicksU64;
             fn mul(self, rhs: $freq_large) -> Self::Output {
                 (LargeValueType::from(self.0) * rhs.0 * $factor / $divider).into()
             }
         }
 
-        impl core::ops::Mul<$time_large> for $freq {
+        impl const core::ops::Mul<$time_large> for $freq {
             type Output = TicksU64;
             fn mul(self, rhs: $time_large) -> Self::Output {
                 (LargeValueType::from(self.0) * rhs.0 * $factor / $divider).into()
@@ -259,21 +259,21 @@ macro_rules! divide {
             }
         }
 
-        impl core::ops::Div<$freq> for TicksU64 {
+        impl const core::ops::Div<$freq> for TicksU64 {
             type Output = $time_large;
             fn div(self, rhs: $freq) -> Self::Output {
                 (self.0 * $factor / LargeValueType::from(rhs.0)).into()
             }
         }
 
-        impl core::ops::Div<$freq_large> for TicksU64 {
+        impl const core::ops::Div<$freq_large> for TicksU64 {
             type Output = $time_large;
             fn div(self, rhs: $freq_large) -> Self::Output {
                 (self.0 * $factor / rhs.0).into()
             }
         }
 
-        impl core::ops::Div<$freq_large> for Ticks {
+        impl const core::ops::Div<$freq_large> for Ticks {
             type Output = $time_large;
             fn div(self, rhs: $freq_large) -> Self::Output {
                 (LargeValueType::from(self.0) * $factor / rhs.0).into()

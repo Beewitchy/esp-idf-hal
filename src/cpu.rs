@@ -47,7 +47,7 @@ impl From<i32> for Core {
 /// 0 - when the active core is the PRO CPU
 /// 1 - when the active core is the APP CPU
 #[inline(always)]
-#[link_section = ".iram1.cpu_core"]
+#[unsafe(link_section = ".iram1.cpu_core")]
 pub fn core() -> Core {
     #[cfg(any(esp32c3, esp32s2, esp32c2, esp32h2, esp32c5, esp32c6, esp32c61))]
     let core = 0;

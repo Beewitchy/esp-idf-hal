@@ -8,6 +8,11 @@
 #![cfg_attr(feature = "nightly", feature(doc_cfg))]
 #![cfg_attr(target_arch = "xtensa", feature(asm_experimental_arch))]
 
+#![feature(const_convert)]
+#![feature(const_ops)]
+#![feature(const_trait_impl)]
+#![feature(const_try)]
+
 #[cfg(not(esp_idf_comp_driver_enabled))]
 compile_error!("esp-idf-hal requires the `driver` ESP-IDF component to be enabled");
 

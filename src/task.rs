@@ -84,7 +84,7 @@ pub unsafe fn destroy(task: TaskHandle_t) {
 }
 
 #[inline(always)]
-#[link_section = ".iram1.interrupt_task_do_yield"]
+#[unsafe(link_section = ".iram1.interrupt_task_do_yield")]
 pub fn do_yield() {
     if interrupt::active() {
         unsafe {
@@ -115,7 +115,7 @@ pub fn do_yield() {
 }
 
 #[inline(always)]
-#[link_section = ".iram1.interrupt_task_current"]
+#[unsafe(link_section = ".iram1.interrupt_task_current")]
 pub fn current() -> Option<TaskHandle_t> {
     if interrupt::active() {
         None
@@ -464,7 +464,7 @@ pub struct CriticalSection(Cell<Option<NonNull<QueueDefinition>>>, AtomicBool);
 const QUEUE_TYPE_RECURSIVE_MUTEX: u8 = 4;
 
 #[inline(always)]
-#[link_section = ".iram1.cs_enter"]
+#[unsafe(link_section = ".iram1.cs_enter")]
 fn enter(cs: &CriticalSection) {
     if !cs.1.load(Ordering::SeqCst) {
         interrupt::free(|| {
@@ -485,7 +485,7 @@ fn enter(cs: &CriticalSection) {
 }
 
 #[inline(always)]
-#[link_section = ".iram1.cs_exit"]
+#[unsafe(link_section = ".iram1.cs_exit")]
 fn exit(cs: &CriticalSection) {
     if !cs.1.load(Ordering::SeqCst) {
         panic!("Called exit() without matching enter()");

@@ -2,7 +2,7 @@
 name = "esp-idf-hal"
 version = "0.45.2"
 authors = ["sapir <yasapir@gmail.com>", "Ivan Markov <ivan.markov@gmail.com>"]
-edition = "2021"
+edition = "2024"
 resolver = "2"
 categories = ["embedded", "hardware-support"]
 keywords = ["hal", "idf", "esp-idf", "esp32"]
@@ -13,7 +13,7 @@ readme = "README.md"
 links = "esp_idf_hal"
 build = "build.rs"
 documentation = "https://docs.esp-rs.org/esp-idf-hal/"
-rust-version = "1.79"
+rust-version = "1.92"
 
 [patch.crates-io]
 esp-idf-sys = { git = "https://github.com/esp-rs/esp-idf-sys" }

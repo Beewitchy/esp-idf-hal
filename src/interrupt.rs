@@ -84,7 +84,7 @@ pub(crate) static CS: IsrCriticalSection = IsrCriticalSection::new();
 
 /// Returns true if the currently active core is executing an ISR request
 #[inline(always)]
-#[link_section = ".iram1.interrupt_active"]
+#[unsafe(link_section = ".iram1.interrupt_active")]
 pub fn active() -> bool {
     unsafe { xPortInIsrContext() != 0 }
 }
@@ -117,7 +117,7 @@ static mut ISR_YIELDER: Option<(unsafe fn(*mut ()), *mut ())> = None;
 
 #[allow(clippy::type_complexity)]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_get_isr_yielder"]
+#[unsafe(link_section = ".iram1.interrupt_get_isr_yielder")]
 pub(crate) unsafe fn get_isr_yielder() -> Option<(unsafe fn(*mut ()), *mut ())> {
     if active() {
         free(|| {
@@ -145,7 +145,7 @@ pub(crate) unsafe fn get_isr_yielder() -> Option<(unsafe fn(*mut ()), *mut ())> 
 /// ISR handler was invoked.
 #[allow(clippy::type_complexity)]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_set_isr_yielder"]
+#[unsafe(link_section = ".iram1.interrupt_set_isr_yielder")]
 pub unsafe fn set_isr_yielder(
     yielder: Option<(unsafe fn(*mut ()), *mut ())>,
 ) -> Option<(unsafe fn(*mut ()), *mut ())> {
@@ -171,7 +171,7 @@ pub struct IsrCriticalSection(core::marker::PhantomData<*const ()>);
 
 #[cfg(not(any(esp32, esp32s2, esp32s3, esp32p4)))]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_enter"]
+#[unsafe(link_section = ".iram1.interrupt_enter")]
 fn enter(_cs: &IsrCriticalSection) {
     unsafe {
         vPortEnterCritical();
@@ -180,7 +180,7 @@ fn enter(_cs: &IsrCriticalSection) {
 
 #[cfg(any(esp32, esp32s2, esp32s3, esp32p4))]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_enter"]
+#[unsafe(link_section = ".iram1.interrupt_enter")]
 fn enter(cs: &IsrCriticalSection) {
     unsafe {
         xPortEnterCriticalTimeout(cs.0.get(), portMUX_NO_TIMEOUT);
@@ -189,7 +189,7 @@ fn enter(cs: &IsrCriticalSection) {
 
 #[cfg(not(any(esp32, esp32s2, esp32s3, esp32p4)))]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_exit"]
+#[unsafe(link_section = ".iram1.interrupt_exit")]
 fn exit(_cs: &IsrCriticalSection) {
     unsafe {
         vPortExitCritical();
@@ -198,7 +198,7 @@ fn exit(_cs: &IsrCriticalSection) {
 
 #[cfg(any(esp32, esp32s2, esp32s3))]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_exit"]
+#[unsafe(link_section = ".iram1.interrupt_exit")]
 fn exit(cs: &IsrCriticalSection) {
     unsafe {
         vPortExitCritical(cs.0.get());
@@ -207,7 +207,7 @@ fn exit(cs: &IsrCriticalSection) {
 
 #[cfg(esp32p4)]
 #[inline(always)]
-#[link_section = ".iram1.interrupt_exit"]
+#[unsafe(link_section = ".iram1.interrupt_exit")]
 fn exit(cs: &IsrCriticalSection) {
     unsafe {
         vPortExitCriticalMultiCore(cs.0.get());
@@ -284,7 +284,7 @@ impl Drop for IsrCriticalSectionGuard<'_> {
 
 /// Executes closure f in an interrupt-free context
 #[inline(always)]
-#[link_section = ".iram1.interrupt_free"]
+#[unsafe(link_section = ".iram1.interrupt_free")]
 pub fn free<R>(f: impl FnOnce() -> R) -> R {
     let _guard = CS.enter();
 
